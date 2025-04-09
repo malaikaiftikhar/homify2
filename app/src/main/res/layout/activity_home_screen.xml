@@ -11,7 +11,7 @@
         android:id="@+id/searchBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search Houzz"
+        android:hint="Search Homify"
         app:layout_constraintTop_toTopOf="parent"
         style="@style/Widget.Material3.SearchBar"
         android:layout_margin="8dp"/>
