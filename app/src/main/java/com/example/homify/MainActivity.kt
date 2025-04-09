@@ -1,5 +1,6 @@
 package com.example.homify
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +16,8 @@ import com.example.homify.ui.theme.HomifyTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {

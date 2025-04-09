@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
+    <resources>
+        <!-- Primary color used for buttons or highlights -->
+        <color android:name="primarycolor" tools:ignore="ExtraText">#6200EE</color> <!-- Example: Purple color -->
+    </resources>
+</selector>
