@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "49620094575",
-    "project_id": "homifyyyy",
-    "storage_bucket": "homifyyyy.firebasestorage.app"
+    "project_number": "212952838772",
+    "project_id": "homify-2781d",
+    "storage_bucket": "homify-2781d.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:49620094575:android:d60729fb0bab5d88d2c79a",
+        "mobilesdk_app_id": "1:212952838772:android:7a9cf4547eff2249e71721",
         "android_client_info": {
           "package_name": "com.example.homify"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBFv90H0LEuHeET-sm7pjFoo-0kDKtHKes"
+          "current_key": "AIzaSyAj_1lEiuV5uQyD9VAK-hICIINBGSiFlkk"
         }
       ],
       "services": {
