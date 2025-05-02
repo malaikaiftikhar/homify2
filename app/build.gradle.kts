@@ -1,10 +1,13 @@
 import org.gradle.kotlin.dsl.implementation
 
 plugins {
-    alias(libs.plugins.android.application)
+    id("com.android.application")
+    id("com.google.gms.google-services")
+   // alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.gms.google.services)
+  //  alias(libs.plugins.google.gms.google.services)
+
 }
 
 android {
@@ -67,6 +70,17 @@ dependencies {
     debugImplementation ("androidx.compose.ui:ui-tooling:1.6.0")
     implementation ("androidx.compose.runtime:runtime-livedata:1.4.0")
     implementation ("androidx.navigation:navigation-compose:2.5.0")
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
+
+
+    // TODO: Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+
+
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
 
     implementation ("androidx.appcompat:appcompat:1.6.1")
         implementation ("androidx.core:core-ktx:1.12.0")

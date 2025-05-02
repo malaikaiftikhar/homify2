@@ -3,56 +3,65 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:orientation="vertical">
+
 
     <!-- Search Bar -->
-    <com.google.android.material.search.SearchBar
+    <SearchView
         android:id="@+id/searchBar"
+        style="@style/Widget.Material3.SearchBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search Homify"
+        android:layout_marginTop="18dp"
+        android:iconifiedByDefault="false"
+        android:queryHint="search here"
         app:layout_constraintTop_toTopOf="parent"
-        style="@style/Widget.Material3.SearchBar"
-        android:layout_margin="8dp"/>
+        app:icon="@drawable/ic_search" /> <!-- Replace ic_search with your image resource -->
+
 
     <!-- Categories Horizontal Scroll -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="9dp">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="200dp"
+            android:layout_height="70dp"
             android:orientation="horizontal">
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ideas"
-                android:layout_marginEnd="8dp"/>
+            <Button
+                android:id="@+id/button1"
+                android:layout_width="58dp"
+                android:layout_height="48dp"
+                android:layout_marginLeft="15dp"
+                android:layout_weight="1"
+                android:text="ideas" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pros"
-                android:layout_marginEnd="8dp"/>
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="58dp"
+                android:layout_height="48dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:text="pros" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Shop"
-                android:layout_marginEnd="8dp"/>
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="58dp"
+                android:layout_height="48dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:text="shop" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Advice"/>
+            <Button
+                android:id="@+id/button4"
+                android:layout_width="58dp"
+                android:layout_height="48dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:text="advice" />
         </LinearLayout>
     </HorizontalScrollView>
 
@@ -60,8 +69,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginTop="16dp"
+        android:orientation="vertical"
         android:padding="8dp">
 
         <TextView
@@ -69,38 +78,38 @@
             android:layout_height="wrap_content"
             android:text="Shop by Department"
             android:textSize="18sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="See All >"
-            android:textColor="@color/blue_500"
             android:layout_marginTop="4dp"
-            android:gravity="end"/>
+            android:gravity="end"
+            android:text="See All >"
+            android:textColor="@color/blue_500" />
 
         <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:columnCount="2"
-            android:rowCount="2"
-            android:layout_marginTop="8dp">
+            android:rowCount="2">
 
             <Button
+                style=""
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_columnWeight="1"
-                android:text="Furniture"
                 android:layout_margin="4dp"
-                style="@style/Widget.Material3.Button.Outlined"/>
+                android:text="Furniture" />
 
             <Button
+                style=""
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_columnWeight="1"
-                android:text="Bath"
                 android:layout_margin="4dp"
-                style="@style/Widget.Material3.Button.Outlined"/>
+                android:text="Bath" />
         </GridLayout>
     </LinearLayout>
 
@@ -108,8 +117,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginTop="16dp"
+        android:orientation="vertical"
         android:padding="8dp">
 
         <TextView
@@ -117,38 +126,38 @@
             android:layout_height="wrap_content"
             android:text="Find Professionals"
             android:textSize="18sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="See All >"
-            android:textColor="@color/blue_500"
             android:layout_marginTop="4dp"
-            android:gravity="end"/>
+            android:gravity="end"
+            android:text="See All >"
+            android:textColor="@color/blue_500" />
 
         <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:columnCount="2"
-            android:rowCount="1"
-            android:layout_marginTop="8dp">
+            android:rowCount="1">
 
             <Button
+                style=""
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_columnWeight="1"
-                android:text="Deck Building"
                 android:layout_margin="4dp"
-                style="@style/Widget.Material3.Button.Outlined"/>
+                android:text="Deck Building" />
 
             <Button
+                style=""
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_columnWeight="1"
-                android:text="Flooring Installation"
                 android:layout_margin="4dp"
-                style="@style/Widget.Material3.Button.Outlined"/>
+                android:text="Flooring Installation" />
         </GridLayout>
     </LinearLayout>
 
@@ -156,8 +165,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginTop="16dp"
+        android:orientation="vertical"
         android:padding="8dp">
 
         <TextView
@@ -165,7 +174,7 @@
             android:layout_height="wrap_content"
             android:text="Trending Transitional Photos"
             android:textSize="18sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Bottom Navigation -->
@@ -174,5 +183,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:menu="@menu/bottom_nav_menu"/>
+        app:menu="@menu/bottom_nav_menu" />
 </LinearLayout>
