@@ -1,7 +1,10 @@
 package com.example.homify
+
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -10,25 +13,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.foundation.clickable
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            setContentView(R.layout.activity_login)  // Make sure this matches your XML file
+        super.onCreate(savedInstanceState)
+        setContent {
+            LoginScreen(
+                onLoginClick = {
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    finish()
+                },
+                onSignupClick = {
+                    startActivity(Intent(this, SignupActivity::class.java))
+                }
+            )
         }
-        }
-
-
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    onLoginClick: () -> Unit,
+    onSignupClick: () -> Unit
+) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -69,7 +82,7 @@ fun LoginScreen() {
 
         // Forgot Password
         TextButton(
-            onClick = { /* Handle forgot password */ },
+            onClick = { /* TODO: Handle forgot password */ },
             modifier = Modifier.align(Alignment.End)
         ) {
             Text("Forgot Password?")
@@ -79,7 +92,7 @@ fun LoginScreen() {
 
         // Login Button
         Button(
-            onClick = { /* Handle login */ },
+            onClick = { onLoginClick() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -91,7 +104,7 @@ fun LoginScreen() {
 
         // Sign up prompt
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Don't have an Account ")
+            Text("Don't have an Account? ")
             Text(
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(
@@ -101,7 +114,7 @@ fun LoginScreen() {
                         append("Signup")
                     }
                 },
-                modifier = Modifier.clickable { /* Handle sign up */ }
+                modifier = Modifier.clickable { onSignupClick() }
             )
         }
     }
