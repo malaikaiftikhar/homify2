@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "212952838772",
-    "project_id": "homify-2781d",
-    "storage_bucket": "homify-2781d.firebasestorage.app"
+    "project_number": "49620094575",
+    "project_id": "homifyyyy",
+    "storage_bucket": "homifyyyy.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:212952838772:android:7a9cf4547eff2249e71721",
+        "mobilesdk_app_id": "1:49620094575:android:d60729fb0bab5d88d2c79a",
         "android_client_info": {
           "package_name": "com.example.homify"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "49620094575-l7jd32tgqj993lea7ep63opf0fd9j68b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.homify",
+            "certificate_hash": "f60a0b9c84502e10cba4507169ae3f59359fb498"
+          }
+        },
+        {
+          "client_id": "49620094575-q338v2ncpo7fsgn3ikni210sdu9a211p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyAj_1lEiuV5uQyD9VAK-hICIINBGSiFlkk"
+          "current_key": "AIzaSyBFv90H0LEuHeET-sm7pjFoo-0kDKtHKes"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "49620094575-q338v2ncpo7fsgn3ikni210sdu9a211p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

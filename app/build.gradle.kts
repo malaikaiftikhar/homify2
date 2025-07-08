@@ -1,13 +1,12 @@
 import org.gradle.kotlin.dsl.implementation
 
+
 plugins {
-    id("com.android.application")
-    id("com.google.gms.google-services")
-   // alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-  //  alias(libs.plugins.google.gms.google.services)
-
+    id("com.android.application")
+    id("com.google.gms.google-services") // Must be last plugin
+    id("org.jetbrains.kotlin.kapt") version "1.9.23"
 }
 
 android {
@@ -24,29 +23,24 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
+    buildFeatures {
+        viewBinding = true
+        compose = true
     }
+
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
     }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -55,43 +49,59 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
     implementation(libs.firebase.auth)
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
-    implementation(libs.googleid)
+    implementation(libs.firebase.firestore)
+
     implementation(libs.androidx.constraintlayout)
     implementation(libs.material)
-    testImplementation(libs.junit)
-    implementation ("androidx.activity:activity-compose:1.10.1")
-    implementation ("androidx.compose.material3:material3:1.3.1")
-    implementation ("androidx.compose.foundation:foundation:1.6.0")
-    implementation ("androidx.navigation:navigation-compose:2.7.5")
-    implementation ("androidx.compose.ui:ui-tooling-preview:1.6.0")
-    debugImplementation ("androidx.compose.ui:ui-tooling:1.6.0")
-    implementation ("androidx.compose.runtime:runtime-livedata:1.4.0")
-    implementation ("androidx.navigation:navigation-compose:2.5.0")
-    // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
+
+    implementation("androidx.navigation:navigation-compose:2.9.0")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation ("com.google.android.material:material:1.9.0")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
+
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    kapt ("com.github.bumptech.glide:compiler:4.16.0")
+
+        // Compose
+        implementation ("androidx.activity:activity-compose:1.7.2")
+        implementation ("androidx.compose.material3:material3:1.1.2")
+        implementation ("androidx.compose.material:material:1.5.4")
 
 
-    // TODO: Add the dependencies for Firebase products you want to use
-    // When using the BoM, don't specify versions in Firebase dependencies
+
+
+
+        // Coil
+        implementation ("io.coil-kt:coil-compose:2.4.0")
+
+        // Coroutines
+        implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
+
+    implementation ("androidx.compose.material:material:1.5.4")
+// Firebase BoM - use this to avoid specifying individual versions
+    implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
+    implementation ("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+
+// Firebase products (no version needed when using BoM)
+    implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-analytics")
 
+    // ARCore & Sceneform
+    implementation("com.google.ar:core:1.49.0")
+   // implementation("com.google.ar.sceneform:filament-android:1.17.1")
+    implementation("com.gorisse.thomas.sceneform:sceneform:1.21.0")
 
-    // Add the dependencies for any other desired Firebase products
-    // https://firebase.google.com/docs/android/setup#available-libraries
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation ("androidx.appcompat:appcompat:1.6.1")
-        implementation ("androidx.core:core-ktx:1.12.0")
-        // Add these if using Compose
-        implementation ("androidx.activity:activity-compose:1.8.0")
-    // Recommended to add Compose BOM
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-
 }

@@ -1,75 +1,130 @@
 package com.example.homify
+
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 
 class SignupActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme(
-                colorScheme = MaterialTheme.colorScheme.copy(
-                    primary = Color(0xFF6A1B9A) // Purple color
-                )
-            ) {
-                SignupScreen()
+
+        try {
+            auth = Firebase.auth
+
+            setContent {
+                MaterialTheme {
+                    SignupScreen(
+                        onSignupSuccess = {
+                            startActivity(
+                                Intent(this, HomeActivity::class.java).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                }
+                            )
+                            finish()
+                        }
+                    )
+                }
             }
+        } catch (e: Exception) {
+            Log.e("FirebaseInit", "Configuration error: ${e.message}")
+            finish()
         }
     }
 }
 
 @Composable
-fun SignupScreen() {
+fun SignupScreen(
+    onSignupSuccess: () -> Unit
+) {
     val context = LocalContext.current
-    val name = remember { mutableStateOf("") }
-    val email = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
+    val auth = Firebase.auth
+    val db = Firebase.firestore
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+
+    fun signUp() {
+        try {
+            if (name.isBlank() || email.isBlank() || password.isBlank()) {
+                scope.launch { snackbarHostState.showSnackbar("Please fill all fields") }
+                return
+            }
+
+            isLoading = true
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    isLoading = false
+                    if (task.isSuccessful) {
+                        val user = auth.currentUser
+                        user?.let {
+                            val userData = hashMapOf(
+                                "name" to name,
+                                "email" to email,
+                                "password" to password
+                            )
+                            db.collection("users").document(it.uid).set(userData)
+                                .addOnSuccessListener {
+                                    Log.d("Firestore", "User data added")
+                                    onSignupSuccess()
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("Firestore", "Error adding user data: $e")
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("Failed to save user data")
+                                    }
+                                }
+                        }
+                    } else {
+                        Log.e("FirebaseAuth", "Error: ${task.exception}")
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                "Error: ${task.exception?.message ?: "Unknown error"}"
+                            )
+                        }
+                    }
+                }
+        } catch (e: Exception) {
+            Log.e("FirebaseAuth", "Signup failed: ${e.message}")
+            scope.launch {
+                snackbarHostState.showSnackbar("System error occurred")
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -79,7 +134,6 @@ fun SignupScreen() {
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Title
         Text(
             text = "Create Account",
             style = MaterialTheme.typography.headlineMedium,
@@ -90,25 +144,17 @@ fun SignupScreen() {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Social login buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            SocialLoginButton(icon = "f") {
-                // Facebook login
-            }
-            SocialLoginButton(icon = "G+") {
-                // Google login
-            }
-            SocialLoginButton(icon = "in") {
-                // LinkedIn login
-            }
+            SocialLoginButton(icon = "f") {}
+            SocialLoginButton(icon = "G+") {}
+            SocialLoginButton(icon = "in") {}
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Divider with text
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -135,18 +181,12 @@ fun SignupScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Name field
         OutlinedTextField(
-            value = name.value,
-            onValueChange = { name.value = it },
+            value = name,
+            onValueChange = { name = it },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Name") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Name"
-                )
-            },
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Name") },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
@@ -158,18 +198,12 @@ fun SignupScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Email field
         OutlinedTextField(
-            value = email.value,
-            onValueChange = { email.value = it },
+            value = email,
+            onValueChange = { email = it },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Email") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Email,
-                    contentDescription = "Email"
-                )
-            },
+            leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
@@ -182,18 +216,12 @@ fun SignupScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Password field
         OutlinedTextField(
-            value = password.value,
-            onValueChange = { password.value = it },
+            value = password,
+            onValueChange = { password = it },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Password") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = "Password"
-                )
-            },
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Password") },
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             colors = TextFieldDefaults.colors(
@@ -207,13 +235,8 @@ fun SignupScreen() {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Sign Up button
         Button(
-            onClick = {
-                // Handle sign up
-                val intent = Intent(context, HomeActivity::class.java)
-                startActivity(context, intent, null)
-            },
+            onClick = { signUp() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -221,13 +244,22 @@ fun SignupScreen() {
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White
-            )
+            ),
+            enabled = !isLoading
         ) {
-            Text(
-                text = "SIGN UP",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.White)
+            } else {
+                Text(
+                    text = "SIGN UP",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+            SnackbarHost(hostState = snackbarHostState)
         }
     }
 }
@@ -248,17 +280,5 @@ fun SocialLoginButton(icon: String, onClick: () -> Unit) {
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SignupScreenPreview() {
-    MaterialTheme(
-        colorScheme = MaterialTheme.colorScheme.copy(
-            primary = Color(0xFF6A1B9A) // Purple color
-        )
-    ) {
-        SignupScreen()
     }
 }
