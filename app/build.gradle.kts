@@ -86,7 +86,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
 
     implementation("io.coil-kt:coil-compose:2.5.0")
-
+    implementation("androidx.compose.material:material-icons-extended")
 
 // Firebase products (no version needed when using BoM)
     implementation("com.google.firebase:firebase-database")

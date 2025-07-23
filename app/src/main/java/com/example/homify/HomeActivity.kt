@@ -45,6 +45,27 @@ import androidx.compose.material.Card
 import android.content.Context
 import java.io.File
 import java.io.FileOutputStream
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.runtime.*
+//import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+//import androidx.compose.ui.graphics.Color
+//import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.*
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 class HomeActivity : ComponentActivity() {
@@ -168,8 +189,50 @@ class HomeActivity : ComponentActivity() {
         val description: String = "",
         val price: String = "",
         val imageUrl: String = "",
+        val category: String = "",
         val details: String = ""
     )
+    // for real timer
+    @Composable
+    fun FlashSaleTimer() {
+        var remainingTime by remember { mutableStateOf(2 * 3600 + 12 * 60 + 56) } // 02:12:56 in seconds
+
+        LaunchedEffect(Unit) {
+            while (remainingTime > 0) {
+                delay(1000L)
+                remainingTime--
+            }
+        }
+
+        val hours = remainingTime / 3600
+        val minutes = (remainingTime % 3600) / 60
+        val seconds = remainingTime % 60
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            listOf(hours, minutes, seconds).forEachIndexed { index, value ->
+                Box(
+                    modifier = Modifier
+                        .width(24.dp)
+                        .height(24.dp)
+                        .background(Color.Red.copy(alpha = 0.8f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "%02d".format(value),
+                        color = Color.White,
+                        fontSize = 12.sp
+                    )
+                }
+                if (index < 2) {
+                    Text(
+                        text = ":",
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        color = Color.Red
+                    )
+                }
+            }
+        }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -179,7 +242,14 @@ class HomeActivity : ComponentActivity() {
         val products = remember { mutableStateOf<List<Product>>(emptyList()) }
         val isLoading = remember { mutableStateOf(true) }
         val error = remember { mutableStateOf<String?>(null) }
-
+        var searchQuery by remember { mutableStateOf("") }
+        val filteredProducts = remember(products.value, searchQuery) {
+            if (searchQuery.isEmpty()) products.value
+            else products.value.filter {
+                it.name.contains(searchQuery, ignoreCase = true) ||
+                        it.description.contains(searchQuery, ignoreCase = true)
+            }
+        }
         // Check authentication
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -246,44 +316,186 @@ class HomeActivity : ComponentActivity() {
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            // Header
-            Text(
-                text = "Discover",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
+            // Location and Search Bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Rawalpindi, PAKISTAN",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Gray
+                )
+
+                // Search Bar
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp),
+                    placeholder = { Text("Search Furniture") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search",
+                            tint = Color.Gray
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(20.dp),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.LightGray.copy(alpha = 0.2f),
+                        focusedContainerColor = Color.LightGray.copy(alpha = 0.3f)
+                    )
+                )
+            }
+
+            // New Collection Banner
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .padding(vertical = 16.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Column(
+                    modifier = Modifier.padding(start = 16.dp)
+                ) {
+                    Text(
+                        text = "New Collection",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Discount 50% for the first transaction",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { /* Handle shop now */ },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text("Shop Now")
+                    }
+                }
+            }
+
+            // Category Section
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Category",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "See All",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
+
+            // Category Items
+            val categories = listOf(
+                Pair(Icons.Default.Weekend, "Sofa"),  // Using Weekend icon for Sofa
+                Pair(Icons.Default.Chair, "Chair"),
+                Pair(Icons.Default.Lightbulb, "Lamp"),
+                Pair(Icons.Default.Kitchen, "Cupboard")  // Using Kitchen icon for Cupboard
             )
 
-            // Categories
+// Category Row
             LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.padding(bottom = 24.dp)
+                modifier = Modifier.padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(listOf("Living Room", "Kitchen", "Dining", "Home")) { category ->
-                    Text(
-                        text = category,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = if (category == "Living Room") MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurface
+                items(categories) { (icon, name) ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .width(80.dp)
+                            .clickable { /* Handle category click */ }
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = name,
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = name,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
+            // Flash Sale Section
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Flash Sale",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                FlashSaleTimer()
+
+
+            }
+
+            // Filter Chips
+            Row(
+                modifier = Modifier.padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf("All", "Newest", "Popular", "Bedroom").forEach { filter ->
+                    FilterChip(
+                        selected = filter == "All",
+                        onClick = { /* Handle filter change */ },
+                        label = { Text(filter) }
                     )
                 }
             }
 
-            // Products
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+            // Products Grid
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(products.value) { product ->
-                    ProductCard(product = product, navController = navController)
+                items(filteredProducts) { product -> // <-- Changed from products.value
+                    ProductCardCompact(product = product, navController = navController)
                 }
             }
         }
     }
 
     @Composable
-    fun ProductCard(product: Product, navController: NavHostController) {
+    fun ProductCardCompact(product: Product, navController: NavHostController) {
         val context = LocalContext.current
-
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ){
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -296,7 +508,7 @@ class HomeActivity : ComponentActivity() {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
+                        .aspectRatio(1f)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
@@ -311,146 +523,25 @@ class HomeActivity : ComponentActivity() {
                         Text("Image not available")
                     }
                 }
-
+            }
                 // Product details
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(8.dp)
                 ) {
                     Text(
                         text = product.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
 
                     Text(
-                        text = product.description,
+                        text = product.price,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(top = 4.dp)
                     )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    )
-
-                    //fav screen code
-                    {
-                        val db = FirebaseFirestore.getInstance()
-                        val auth = FirebaseAuth.getInstance()
-                        val userId = auth.currentUser?.uid
-
-                        IconButton(onClick = {
-                            if (userId == null) {
-                                Toast.makeText(
-                                    context,
-                                    "Please log in to add favorites",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                return@IconButton
-                            }
-                            val priceAsDouble = product.price.toDoubleOrNull() ?: 0.0
-
-                            val favoriteItem = hashMapOf(
-                                "userId" to userId,
-                                "productId" to product.id,
-                                "name" to product.name,
-                                "imageUrl" to product.imageUrl,
-                                "price" to priceAsDouble
-                            )
-
-                            db.collection("favorites")
-                                .add(favoriteItem)
-                                .addOnSuccessListener {
-                                    Toast.makeText(
-                                        context,
-                                        "Added to favorites",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                                .addOnFailureListener {
-                                    Toast.makeText(
-                                        context,
-                                        "Failed to add to favorites",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                        }) {
-                            Icon(
-                                Icons.Default.Favorite,
-                                contentDescription = "Add to Favorites",
-                                tint = Color.Red
-                            )
-                        }
-
-                        Text(
-                            text = product.price,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        // val context = LocalContext.current
-                        //add to cart function
-                        Button(
-                            onClick = {
-                                val userId = FirebaseAuth.getInstance().currentUser?.uid
-                                if (userId == null) {
-                                    Toast.makeText(
-                                        context,
-                                        "Please log in to add to cart",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    return@Button
-                                }
-
-                                val db = FirebaseFirestore.getInstance()
-                                val cartRef = db.collection("carts")
-                                val query = cartRef
-                                    .whereEqualTo("userId", userId)
-                                    .whereEqualTo("productId", product.id)
-
-                                query.get().addOnSuccessListener { result ->
-                                    if (!result.isEmpty) {
-                                        // Product already in cart, update quantity
-                                        val doc = result.documents[0]
-                                        val existingQuantity = doc.getLong("quantity")?.toInt() ?: 1
-                                        cartRef.document(doc.id)
-                                            .update("quantity", existingQuantity + 1)
-                                    } else {
-                                        val priceAsDouble =
-                                            product.price.toDoubleOrNull() ?: 0.0 // ✅ Convert
-
-                                        val cartItem = hashMapOf(
-                                            "userId" to userId,
-                                            "productId" to product.id,
-                                            "name" to product.name,
-                                            "price" to priceAsDouble, // ✅ Store as number
-                                            "quantity" to 1,
-                                            "imageUrl" to product.imageUrl
-                                        )
-
-                                        cartRef.add(cartItem)
-                                    }
-
-                                    Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT)
-                                        .show()
-                                }.addOnFailureListener {
-                                    Toast.makeText(
-                                        context,
-                                        "Failed to add to cart",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            },
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text("Add to Cart")
-                        }
-
-                    }
                 }
             }
         }
@@ -889,7 +980,7 @@ class HomeActivity : ComponentActivity() {
         } else {
             LazyColumn(modifier = Modifier.padding(16.dp)) {
                 items(favorites) { product ->
-                    ProductCard(product = product, navController = rememberNavController())
+                    ProductCardCompact(product = product, navController = rememberNavController())
                 }
             }
         }
