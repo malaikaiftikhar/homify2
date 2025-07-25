@@ -111,4 +111,8 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
 
+    // Accompanist Pager for HorizontalPager
+    implementation("com.google.accompanist:accompanist-pager:0.28.0")
+// Accompanist Pager Indicators (for dots/indicators below pager)
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.28.0")
 }

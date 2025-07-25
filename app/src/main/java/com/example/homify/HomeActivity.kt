@@ -60,14 +60,22 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.*
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.HorizontalPagerIndicator
+import com.google.accompanist.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import com.google.accompanist.pager.ExperimentalPagerApi
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -557,10 +565,28 @@ class HomeActivity : ComponentActivity() {
         val userId: String = ""
     )
 
+    @OptIn(
+        ExperimentalFoundationApi::class, ExperimentalPagerApi::class,
+        ExperimentalPagerApi::class
+    )
+
     @Composable
     fun ProductDetailScreen(productId: String, navController: NavHostController) {
         val product = remember { mutableStateOf<Product?>(null) }
         val isLoading = remember { mutableStateOf(true) }
+        val selectedColor = remember { mutableStateOf("Brown") }
+        val showFullDescription = remember { mutableStateOf(false) }
+
+        val colors = listOf("Brown", "Black", "Red", "Purple", "Olive")
+        val colorMap = mapOf(
+            "Brown" to Color(0xFF8B4513),
+            "Black" to Color.Black,
+            "Red" to Color.Red,
+            "Purple" to Color(0xFF6A0DAD),
+            "Olive" to Color(0xFF808000)
+        )
+
+        val pagerState = rememberPagerState()
 
         LaunchedEffect(productId) {
             try {
@@ -586,121 +612,157 @@ class HomeActivity : ComponentActivity() {
         }
 
         val currentProduct = product.value ?: return
+        val context = LocalContext.current
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            // Product image
-            Box(
+            // Swipeable image pager
+            HorizontalPager(count = 5, state = pagerState) { page ->
+                AsyncImage(
+                    model = currentProduct.imageUrl,
+                    contentDescription = "Product Image",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                )
+            }
+
+            // Pager indicator
+            HorizontalPagerIndicator(
+                pagerState = pagerState,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
+                    .align(Alignment.CenterHorizontally)
+                    .padding(8.dp)
+            )
+
+            // AR Camera Icon
+            IconButton(
+                onClick = {
+                    Toast.makeText(context, "AR camera launching soon...", Toast.LENGTH_SHORT).show()
+                    // TODO: Implement AR functionality here using ARCore
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(bottom = 12.dp)
+                    .size(40.dp)
+                    .background(Color.White, shape = CircleShape)
             ) {
-                if (currentProduct.imageUrl.isNotEmpty()) {
-                    AsyncImage(
-                        model = currentProduct.imageUrl,
-                        contentDescription = currentProduct.name,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                Icon(Icons.Default.CameraAlt, contentDescription = "AR Camera", tint = Color.DarkGray)
+            }
+
+            // Title and rating
+            Text(text = currentProduct.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Arm Chair", color = Color.Gray)
+                Spacer(modifier = Modifier.width(16.dp))
+                Icon(Icons.Default.Star, contentDescription = "Rating", tint = Color(0xFFFFC107))
+                Text("4.5", fontWeight = FontWeight.SemiBold)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Product Description
+            Text("Product Details", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(
+                text = if (showFullDescription.value) currentProduct.description else currentProduct.description.take(100) + "...",
+                color = Color.Gray,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+            TextButton(onClick = { showFullDescription.value = !showFullDescription.value }) {
+                Text(if (showFullDescription.value) "Show less" else "Read more")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Color options
+            Text("Select Color: ${selectedColor.value}", fontWeight = FontWeight.SemiBold)
+            Row(modifier = Modifier.padding(vertical = 8.dp)) {
+                colors.forEach { color ->
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .background(colorMap[color] ?: Color.Gray)
+                            .border(
+                                width = 2.dp,
+                                color = if (selectedColor.value == color) Color.Black else Color.Transparent,
+                                shape = CircleShape
+                            )
+                            .clickable { selectedColor.value = color }
                     )
-                } else {
-                    Text("Image not available")
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Text(
-                text = currentProduct.name,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
+            // Price and Add to Cart
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text("Total Price", color = Color.Gray)
+                    Text("$${currentProduct.price}", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                }
 
-            Text(
-                text = currentProduct.description,
-                color = Color.Gray,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-
-            Text(
-                text = currentProduct.price,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Details",
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
-
-            Text(
-                text = currentProduct.details,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            val context = LocalContext.current
-
-            Button(
-                onClick = {
-                    val userId = FirebaseAuth.getInstance().currentUser?.uid
-                    if (userId == null) {
-                        Toast.makeText(context, "Please log in to add to cart", Toast.LENGTH_SHORT)
-                            .show()
-                        return@Button
-                    }
-
-                    val db = FirebaseFirestore.getInstance()
-                    val cartRef = db.collection("carts")
-                    val query = cartRef
-                        .whereEqualTo("userId", userId)
-                        .whereEqualTo("productId", currentProduct.id) // ✅ use currentProduct
-
-                    query.get().addOnSuccessListener { result ->
-                        if (!result.isEmpty) {
-                            val doc = result.documents[0]
-                            val existingQuantity = doc.getLong("quantity")?.toInt() ?: 1
-                            cartRef.document(doc.id).update("quantity", existingQuantity + 1)
-                        } else {
-                            val priceAsDouble =
-                                currentProduct.price.toDoubleOrNull() ?: 0.0 // ✅ Convert
-
-                            val cartItem = hashMapOf(
-                                "userId" to userId,
-                                "productId" to currentProduct.id,
-                                "name" to currentProduct.name,
-                                "price" to priceAsDouble, // ✅ Store as number
-                                "quantity" to 1,
-                                "imageUrl" to currentProduct.imageUrl
-                            )
-
-                            cartRef.add(cartItem)
+                Button(
+                    onClick = {
+                        val userId = FirebaseAuth.getInstance().currentUser?.uid
+                        if (userId == null) {
+                            Toast.makeText(context, "Please log in to add to cart", Toast.LENGTH_SHORT).show()
+                            return@Button
                         }
 
-                        Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show()
-                    }.addOnFailureListener {
-                        Toast.makeText(context, "Failed to add to cart", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Add to Cart")
+                        val db = FirebaseFirestore.getInstance()
+                        val cartRef = db.collection("carts")
+                        val query = cartRef
+                            .whereEqualTo("userId", userId)
+                            .whereEqualTo("productId", currentProduct.id)
+
+                        query.get().addOnSuccessListener { result ->
+                            if (!result.isEmpty) {
+                                val doc = result.documents[0]
+                                val existingQuantity = doc.getLong("quantity")?.toInt() ?: 1
+                                cartRef.document(doc.id).update("quantity", existingQuantity + 1)
+                            } else {
+                                val priceAsDouble = currentProduct.price.toDoubleOrNull() ?: 0.0
+                                val cartItem = hashMapOf(
+                                    "userId" to userId,
+                                    "productId" to currentProduct.id,
+                                    "name" to currentProduct.name,
+                                    "price" to priceAsDouble,
+                                    "quantity" to 1,
+                                    "imageUrl" to currentProduct.imageUrl
+                                )
+                                cartRef.add(cartItem)
+                            }
+
+                            Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show()
+                        }.addOnFailureListener {
+                            Toast.makeText(context, "Failed to add to cart", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2F4F4F))
+                ) {
+                    Icon(Icons.Default.ShoppingBag, contentDescription = "Cart", tint = Color.White)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Add to Cart", color = Color.White)
+                }
             }
-
-
         }
     }
+
 
     @Composable
     fun SearchScreen() {
