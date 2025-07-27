@@ -48,14 +48,11 @@ import java.io.FileOutputStream
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.runtime.*
-//import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
-//import androidx.compose.ui.graphics.Color
-//import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -66,6 +63,13 @@ import androidx.compose.foundation.text.*
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
+import com.google.firebase.firestore.Query
+import com.google.firebase.Timestamp
+import java.util.Calendar
+import java.util.Date
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 class HomeActivity : ComponentActivity() {
@@ -73,11 +77,779 @@ class HomeActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         //Upload drawable to Cloudinary when app opens
         val productList = listOf(
-            Triple(R.drawable.wooden_sofa, "wooden_sofa.jpg", Product("Wooden Sofa", "Comfortable wooden sofa for living room.", "299.9", "Material: Sheesham Wood\nColor: Walnut\n3-Seater")),
-            Triple(R.drawable.dining_table, "dining_table.jpg", Product("Dining Table", "Spacious dining table for family meals.", "499.0", "Material: Teak Wood\nSeats: 6")),
-            Triple(R.drawable.kitchen_chair, "kitchen_chair.jpg", Product("Kitchen Chair", "Stylish kitchen chair.", "120.5", "Color: Black\nMaterial: Metal")),
-            Triple(R.drawable.book_shelf, "shelf_unit.jpg", Product("Shelf Unit", "Modern wall-mounted shelf.", "89.99", "Color: White\nMaterial: MDF")),
+            Triple(
+                R.drawable.wooden_sofa,
+                "wooden_sofa.jpg",
+                Product(
+                    name = "Wooden Sofa",
+                    description = "Comfortable wooden sofa for living room.",
+                    price = "299.9",
+                    details = "Material: Sheesham Wood\nColor: Walnut\n3-Seater",
+                    onSale = true,
+                    category="sofa",
+                    discountPercentage = 20
+                )
+            ),
+                Triple(
+                    R.drawable.sofa2,
+                    "sofa2.jpg",
+                    Product(
+                        name = "Modern 3-Seater Sofa",
+                        description = "Stylish and modern 3-seater fabric sofa.",
+                        price = "499.99",
+                        details = "Material: Linen\nColor: Gray\nSize: 84 inch",
+                        onSale = true,
+                        category = "sofa",
+                        discountPercentage = 20
+                    )
+                ),
+        Triple(
+            R.drawable.sofa3,
+            "sofa3.jpg",
+            Product(
+                name = "Leather Recliner Sofa",
+                description = "Premium recliner sofa with plush cushions.",
+                price = "799.99",
+                details = "Material: Leather\nColor: Brown\nSeating: 3",
+                onSale = false,
+                category = "sofa",
+                discountPercentage = 0
+            )
+        ),
+        Triple(
+            R.drawable.cbsofa4,
+            "cbsofa4.jpg",
+            Product(
+                name = "Convertible Sofa Bed",
+                description = "Sofa that easily converts into a bed.",
+                price = "399.00",
+                details = "Color: Navy Blue\nSize: Queen\nMaterial: Microfiber",
+                onSale = true,
+                category = "sofa",
+                discountPercentage = 25
+            )
+        ),
+        Triple(
+            R.drawable.chestersofa5,
+            "chestersofa5.jpg",
+            Product(
+                name = "Classic Chesterfield Sofa",
+                description = "Tufted design classic chesterfield.",
+                price = "649.50",
+                details = "Material: Velvet\nColor: Emerald Green\nStyle: Vintage",
+                onSale = false,
+                category = "sofa",
+                discountPercentage = 0
+            )
+        ),
+        Triple(
+            R.drawable.lsofa6,
+            "lsofa6.jpg",
+            Product(
+                name = "L-Shaped Corner Sofa",
+                description = "Spacious L-shape sectional with cushions.",
+                price = "699.90",
+                details = "Material: Fabric\nColor: Light Grey\nSeating: 6",
+                onSale = true,
+                category = "sofa",
+                discountPercentage = 15
+            )
+        ),
+        Triple(
+            R.drawable.futonsofa7,
+            "futonsofa7.jpg",
+            Product(
+                name = "Futon Sofa",
+                description = "Compact futon for studio or guest room.",
+                price = "299.99",
+                details = "Color: Charcoal\nFolds flat\nFrame: Metal",
+                onSale = true,
+                category = "sofa",
+                discountPercentage = 10
+            )
+        ),
+        Triple(
+            R.drawable.woodbasesofa8,
+            "woodbasesofa8.jpg",
+            Product(
+                name = "Minimalist Wooden Sofa",
+                description = "Modern sofa with wooden base frame.",
+                price = "459.00",
+                details = "Material: Sheesham Wood\nColor: Beige\n3-Seater",
+                onSale = false,
+                category = "sofa",
+                discountPercentage = 0
+            )
+        ),
+        Triple(
+            R.drawable.floralsofa9,
+            "floralsofa9.jpg",
+            Product(
+                name = "Floral Fabric Sofa",
+                description = "Bright floral patterned 2-seater sofa.",
+                price = "379.00",
+                details = "Material: Cotton\nColor: Multicolor",
+                onSale = true,
+                category = "sofa",
+                discountPercentage = 10
+            )
+        ),
+        Triple(
+            R.drawable.velvetsofa10,
+            "velvetsofa10.jpg",
+            Product(
+                name = "Luxury Velvet Sofa",
+                description = "Elegant velvet sofa with gold legs.",
+                price = "899.99",
+                details = "Material: Velvet\nColor: Royal Blue\n3-Seater",
+                onSale = true,
+                category = "sofa",
+                discountPercentage = 30
+            )
+        ),
+        Triple(
+            R.drawable.scandinaviansofa11,
+            "scandinaviansofa11.jpg",
+            Product(
+                name = "Scandinavian Sofa",
+                description = "Clean and simple Scandinavian design.",
+                price = "549.99",
+                details = "Material: Linen Blend\nColor: Light Cream",
+                onSale = false,
+                category = "sofa",
+                discountPercentage = 0
+            )
+        ),
+        Triple(
+            R.drawable.recliningsofa12,
+            "recliningsofa12.jpg",
+            Product(
+                name = "Reclining Sectional Sofa",
+                description = "Multi-seat recliner with storage console.",
+                price = "999.00",
+                details = "Color: Dark Brown\nCup Holders: Yes",
+                onSale = true,
+                category = "sofa",
+                discountPercentage = 25
+            )
+        ),
+        Triple(
+            R.drawable.compactsofa13,
+            "compactsofa13.jpg",
+            Product(
+                name = "Compact City Sofa",
+                description = "Small 2-seater perfect for apartments.",
+                price = "299.99",
+                details = "Material: Faux Leather\nColor: Black",
+                onSale = false,
+                category = "sofa",
+                discountPercentage = 0
+            )
+        ),
+        Triple(
+            R.drawable.sheeshmsofa14,
+            "sheeshmsofa14.jpg",
+            Product(
+                name = "Sheesham Wood Sofa",
+                description = "Handcrafted Sheesham sofa with cushions.",
+                price = "549.00",
+                details = "Frame: Wood\nColor: Walnut\nCushions: Off-white",
+                onSale = true,
+                category = "sofa",
+                discountPercentage = 15
+            )
+        ),
+        Triple(
+            R.drawable.tuftedsofa15,
+            "tuftedsofa15.jpg",
+            Product(
+                name = "Grey Tufted Sofa",
+                description = "Chic grey sofa with button tufting.",
+                price = "479.00",
+                details = "Material: Fabric\nFrame: Hardwood",
+                onSale = true,
+                category = "sofa",
+                discountPercentage = 20
+            )
+        ),
+        Triple(
+            R.drawable.bohusofa16,
+            "bohusofa16.jpg",
+            Product(
+                name = "Boho Sofa",
+                description = "Bohemian style with colorful cushions.",
+                price = "599.99",
+                details = "Material: Cotton Blend\nColor: Mixed",
+                onSale = false,
+                category = "sofa",
+                discountPercentage = 0
+            )
+        ),
+//chairs
+            Triple(
+                R.drawable.wingbackchair1,
+                "wingbackchair1.jpg",
+                Product(
+                    name = "Velvet Wingback Armchair",
+                    description = "Elegant high-back chair with flared arms, ideal for cozy corners or reading nooks.",
+                    price = "249.99",
+                    details = "Style: Classic\nRoom: Living Room\nMaterial: Velvet\nColor: Royal Blue\nLegs: Solid Wood",
+                    onSale = true,
+                    category = "chair",
+                    discountPercentage = 20
+                )
+            ),
+            Triple(
+                R.drawable.rocking_chair,
+                "rocking_chair.jpg",
+                Product(
+                    name = "Rocking Chair",
+                    description = "Classic wooden rocking chair.",
+                    price = "199.00",
+                    details = "Material: Teak Wood\nColor: Brown",
+                    onSale = false,
+                    category = "chair",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.ergonomic_office_chair,
+                "ergonomic_office_chair.jpg",
+                Product(
+                    name = "Ergonomic Mesh Office Chair",
+                    description = "Contemporary task chair with lumbar support for productive workspaces.",
+                    price = "299.00",
+                    details = "Style: Modern Office\nRoom: Home Office\nMaterial: Mesh + Plastic\nColor: Black",
+                    onSale = true,
+                    category = "chair",
+                    discountPercentage = 15
+                )
+            ),
+            Triple(
+                R.drawable.accent_lounge_chair,
+                "accent_lounge_chair.jpg",
+                Product(
+                    name = "Accent Lounge Chair",
+                    description = "Low-profile chair with curved back.",
+                    price = "189.99",
+                    details = "Material: Fabric\nColor: Olive",
+                    onSale = true,
+                    category = "chair",
+                    discountPercentage = 10
+                )
+            ),
+            Triple(
+                R.drawable.beige_leather_recliner,
+                "beige_leather_recliner.jpg",
+                Product(
+                    name = "Beige Leather Recliner",
+                    description = "Reclining armchair designed for maximum comfort in your TV room or lounge.",
+                    price = "359.99",
+                    details = "Style: Contemporary\nRoom: Living Room\nMaterial: Leatherette\nColor: Beige",
+                    onSale = true,
+                    category = "chair",
+                    discountPercentage = 25
+                )
+            ),
+            Triple(
+                R.drawable.modern_dining_chair_set,
+                "modern_dining_chair_set.jpg",
+                Product(
+                    name = "Modern Dining Chair Set (2)",
+                    description = "Upholstered high-back chairs for stylish dining spaces.",
+                    price = "199.00",
+                    details = "Style: Modern Dining\nRoom: Dining Room\nMaterial: Fabric\nColor: Soft Gray",
+                    onSale = false,
+                    category = "chair",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.lounge_egg_chair,
+                "lounge_egg_chair.jpg",
+                Product(
+                    name = "Lounge Egg Chair",
+                    description = "Iconic designer chair perfect for statement seating or cozy nooks.",
+                    price = "699.00",
+                    details = "Style: Scandinavian\nRoom: Living Room or Studio\nMaterial: Fabric + Steel\nColor: Mustard Yellow",
+                    onSale = true,
+                    category = "chair",
+                    discountPercentage = 30
+                )
+            ),
+            Triple(
+                R.drawable.sheesham_lounge_chair,
+                "sheesham_lounge_chair.jpg",
+                Product(
+                    name = "Sheesham Lounge Chair",
+                    description = "Handcrafted Indian wood chair with traditional woven cane seat.",
+                    price = "159.00",
+                    details = "Style: Ethnic/Boho\nRoom: Living Room\nMaterial: Sheesham Wood + Cane\nColor: Walnut Finish",
+                    onSale = false,
+                    category = "chair",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.swivel_counter_stool,
+                "swivel_counter_stool.jpg",
+                Product(
+                    name = "Swivel Counter Stool",
+                    description = "Height-adjustable bar stool ideal for kitchen islands or home bars.",
+                    price = "129.99",
+                    details = "Style: Industrial\nRoom: Kitchen or Bar\nMaterial: Metal + Leather\nColor: Matte Black",
+                    onSale = true,
+                    category = "chair",
+                    discountPercentage = 10
+                )
+            ),
+            Triple(
+                R.drawable.plush_bean_bag_chair,
+                "plush_bean_bag_chair.jpg",
+                Product(
+                    name = "Plush Bean Bag Chair",
+                    description = "Soft and supportive bean bag, great for teen bedrooms or creative spaces.",
+                    price = "79.99",
+                    details = "Style: Casual/Youth\nRoom: Bedroom or Lounge\nMaterial: Microfiber\nColor: Teal Blue",
+                    onSale = true,
+                    category = "chair",
+                    discountPercentage = 20
+                )
+            ),
+            Triple(
+                R.drawable.compact_study_chair,
+                "compact_study_chair.jpg",
+                Product(
+                    name = "Compact Study Chair",
+                    description = "Ergonomic chair designed for focus and back support in study areas.",
+                    price = "109.00",
+                    details = "Style: Functional\nRoom: Study Room\nMaterial: Plastic + Cushion\nColor: White",
+                    onSale = false,
+                    category = "chair",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.traditional_armrest_chair,
+                "traditional_armrest_chair.jpg",
+                Product(
+                    name = "Traditional Armrest Chair",
+                    description = "Sturdy wooden chair with a colonial-style silhouette and rich finish.",
+                    price = "179.99",
+                    details = "Style: Colonial\nRoom: Living Room\nMaterial: Sheesham Wood\nColor: Mahogany",
+                    onSale = false,
+                    category = "chair",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.kids_activity_chair,
+                "kids_activity_chair.jpg",
+                Product(
+                    name = "Kids Activity Chair",
+                    description = "Bright, safe plastic chair designed for toddlers' learning corners.",
+                    price = "49.00",
+                    details = "Style: Educational\nRoom: Kids Room\nMaterial: Plastic\nColor: Red & Blue",
+                    onSale = true,
+                    category = "chair",
+                    discountPercentage = 10
+                )
+            ),
+            Triple(
+                R.drawable.luxury_lounge_chair_ottoman,
+                "luxury_lounge_chair_ottoman.jpg",
+                Product(
+                    name = "Luxury Lounge Chair & Ottoman",
+                    description = "Designer lounge chair with matching footrest for high-end interiors.",
+                    price = "899.00",
+                    details = "Style: Modern Luxury\nRoom: Lounge or Office\nMaterial: Faux Leather\nColor: Espresso Brown",
+                    onSale = true,
+                    category = "chair",
+                    discountPercentage = 30
+                )
+            ),
+//lamps
+            Triple(
+                R.drawable.tripod_floor_lamp,
+                "tripod_floor_lamp.jpg",
+                Product(
+                    name = "Tripod Floor Lamp",
+                    description = "Modern floor lamp with wooden tripod base, ideal for contemporary living rooms.",
+                    price = "149.99",
+                    details = "Style: Modern Minimalist\nRoom: Living Room\nHeight: 5 ft\nBulb: E27\nColor: Beige",
+                    onSale = true,
+                    category = "lamp",
+                    discountPercentage = 15
+                )
+            ),
+            Triple(
+                R.drawable.industrial_desk_lamp,
+                "industrial_desk_lamp.jpg",
+                Product(
+                    name = "Industrial Desk Lamp",
+                    description = "Retro-style desk lamp with metal frame for loft or workspace decor.",
+                    price = "89.99",
+                    details = "Style: Industrial\nRoom: Home Office\nMaterial: Iron\nColor: Black",
+                    onSale = false,
+                    category = "lamp",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.bedside_table_lamp,
+                "bedside_table_lamp.jpg",
+                Product(
+                    name = "Bedside Table Lamp",
+                    description = "Soft-glow ceramic lamp for cozy bedroom nightstands.",
+                    price = "49.00",
+                    details = "Style: Classic\nRoom: Bedroom\nMaterial: Ceramic\nShade: Fabric\nColor: White",
+                    onSale = true,
+                    category = "lamp",
+                    discountPercentage = 10
+                )
+            ),
+            Triple(
+                R.drawable.chandelier_pendant_lamp,
+                "chandelier_pendant_lamp.jpg",
+                Product(
+                    name = "Chandelier Pendant Lamp",
+                    description = "Luxurious hanging chandelier to elevate dining or entry spaces.",
+                    price = "299.00",
+                    details = "Style: Luxury\nRoom: Dining Room or Foyer\nCrystal: Yes\nLights: 5 Bulbs",
+                    onSale = false,
+                    category = "lamp",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.led_wall_lamp,
+                "led_wall_lamp.jpg",
+                Product(
+                    name = "LED Wall Lamp",
+                    description = "Wall-mounted LED lamp offering soft ambient lighting.",
+                    price = "59.99",
+                    details = "Style: Modern\nRoom: Bedroom or Hallway\nMaterial: Aluminum\nColor: Warm White",
+                    onSale = true,
+                    category = "lamp",
+                    discountPercentage = 20
+                )
+            ),
+            Triple(
+                R.drawable.adjustable_reading_lamp,
+                "adjustable_reading_lamp.jpg",
+                Product(
+                    name = "Adjustable Reading Lamp",
+                    description = "Clip-on reading light with a flexible neck for focused lighting.",
+                    price = "39.99",
+                    details = "Style: Functional\nRoom: Study or Bedside\nType: Clip-on\nBrightness: 3-Level",
+                    onSale = true,
+                    category = "lamp",
+                    discountPercentage = 15
+                )
+            ),
+
+            Triple(
+                R.drawable.vintage_brass_lamp,
+                "vintage_brass_lamp.jpg",
+                Product(
+                    name = "Vintage Brass Table Lamp",
+                    description = "Old-school brass table lamp with elegant golden finish.",
+                    price = "99.00",
+                    details = "Style: Vintage\nRoom: Study or Living Room\nMaterial: Brass\nColor: Gold",
+                    onSale = true,
+                    category = "lamp",
+                    discountPercentage = 25
+                )
+            ),
+            Triple(
+                R.drawable.ceiling_spotlights,
+                "ceiling_spotlights.jpg",
+                Product(
+                    name = "Ceiling Spotlights",
+                    description = "Adjustable ceiling spotlight set for modern interiors.",
+                    price = "129.00",
+                    details = "Style: Modern Industrial\nRoom: Living Room or Kitchen\nMaterial: Steel\nLights: 3 Heads",
+                    onSale = true,
+                    category = "lamp",
+                    discountPercentage = 10
+                )
+            ),
+            Triple(
+                R.drawable.rgb_smart_lamp,
+                "rgb_smart_lamp.jpg",
+                Product(
+                    name = "RGB Smart Lamp",
+                    description = "App & voice-controlled smart lamp with color-changing modes.",
+                    price = "79.00",
+                    details = "Style: Tech-Enhanced\nRoom: Bedroom or Gaming Setup\nControl: App + Voice\nModes: 16 Colors",
+                    onSale = true,
+                    category = "lamp",
+                    discountPercentage = 30
+                )
+            ),
+            Triple(
+                R.drawable.rustic_lantern_lamp,
+                "rustic_lantern_lamp.jpg",
+                Product(
+                    name = "Rustic Lantern Lamp",
+                    description = "Vintage-style lantern lamp perfect for cozy decor settings.",
+                    price = "59.00",
+                    details = "Style: Rustic\nRoom: Living Room or Entryway\nBattery: 2xAA\nMaterial: Metal",
+                    onSale = false,
+                    category = "lamp",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.kids_moon_night_lamp,
+                "kids_moon_night_lamp.jpg",
+                Product(
+                    name = "Kids Moon Night Lamp",
+                    description = "Cute moon-shaped night light for kids' bedrooms.",
+                    price = "39.00",
+                    details = "Style: Playful\nRoom: Kids Room\nShape: Moon\nMaterial: Plastic",
+                    onSale = true,
+                    category = "lamp",
+                    discountPercentage = 15
+                )
+            ),
+            Triple(
+                R.drawable.swing_arm_wall_lamp,
+                "swing_arm_wall_lamp.jpg",
+                Product(
+                    name = "Swing Arm Wall Lamp",
+                    description = "Wall-mounted reading lamp with flexible swing arm.",
+                    price = "69.00",
+                    details = "Style: Functional Modern\nRoom: Bedroom or Study\nMaterial: Steel\nColor: Matte Black",
+                    onSale = true,
+                    category = "lamp",
+                    discountPercentage = 10
+                )
+            ),
+            Triple(
+                R.drawable.crystal_table_lamp,
+                "crystal_table_lamp.jpg",
+                Product(
+                    name = "Crystal Table Lamp",
+                    description = "Elegant lamp with a shimmering crystal base and white shade.",
+                    price = "149.00",
+                    details = "Style: Glam\nRoom: Bedroom or Lounge\nShade: White\nMaterial: Glass + Metal",
+                    onSale = false,
+                    category = "lamp",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.rechargeable_led_lamp,
+                "rechargeable_led_lamp.jpg",
+                Product(
+                    name = "Rechargeable LED Lamp",
+                    description = "Portable LED lamp with adjustable brightness for any room.",
+                    price = "45.00",
+                    details = "Style: Portable\nRoom: Bedroom or Office\nUSB Charge: Yes\nBrightness: Adjustable",
+                    onSale = true,
+                    category = "lamp",
+                    discountPercentage = 20
+                )
+            ),
+//cupboards
+            Triple(
+                R.drawable.wardrobe_2_door,
+                "wardrobe_2_door.jpg",
+                Product(
+                    name = "2-Door Wardrobe",
+                    description = "Compact wardrobe with hanging space and minimalist design.",
+                    price = "299.99",
+                    details = "Style: Contemporary\nRoom: Bedroom\nMaterial: MDF\nColor: Wenge\nShelves: 2",
+                    onSale = true,
+                    category = "cupboard",
+                    discountPercentage = 10
+                )
+            ),
+            Triple(
+                R.drawable.sliding_door_cupboard,
+                "sliding_door_cupboard.jpg",
+                Product(
+                    name = "Sliding Door Cupboard",
+                    description = "Glossy-finish sliding wardrobe perfect for modern interiors.",
+                    price = "599.00",
+                    details = "Style: Modern\nRoom: Bedroom\nDoors: 2 Sliding\nFinish: Glossy",
+                    onSale = false,
+                    category = "cupboard",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.bookshelf_cupboard,
+                "bookshelf_cupboard.jpg",
+                Product(
+                    name = "Bookshelf Cupboard",
+                    description = "Tall storage unit with shelves and glass-panel doors.",
+                    price = "249.00",
+                    details = "Style: Transitional\nRoom: Study or Living Room\nMaterial: Engineered Wood\nColor: Walnut",
+                    onSale = true,
+                    category = "cupboard",
+                    discountPercentage = 20
+                )
+            ),
+            Triple(
+                R.drawable.kitchen_storage_cabinet,
+                "kitchen_storage_cabinet.jpg",
+                Product(
+                    name = "Kitchen Storage Cabinet",
+                    description = "Tall pantry-style cupboard for kitchen essentials.",
+                    price = "199.00",
+                    details = "Style: Functional\nRoom: Kitchen\nMaterial: MDF\nColor: White",
+                    onSale = false,
+                    category = "cupboard",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.wall_mounted_cupboard,
+                "wall_mounted_cupboard.jpg",
+                Product(
+                    name = "Wall-Mounted Cupboard",
+                    description = "Compact wall cabinet ideal for bathrooms or kitchens.",
+                    price = "149.00",
+                    details = "Style: Utility\nRoom: Kitchen or Bathroom\nColor: Brown\nShelves: 2",
+                    onSale = true,
+                    category = "cupboard",
+                    discountPercentage = 15
+                )
+            ),
+            Triple(
+                R.drawable.metal_utility_cupboard,
+                "metal_utility_cupboard.jpg",
+                Product(
+                    name = "Metal Utility Cupboard",
+                    description = "Durable lockable cabinet for garage or utility spaces.",
+                    price = "329.00",
+                    details = "Style: Industrial\nRoom: Utility Room or Garage\nMaterial: Metal\nShelves: 5\nColor: Grey",
+                    onSale = true,
+                    category = "cupboard",
+                    discountPercentage = 25
+                )
+            ),
+            Triple(
+                R.drawable.bathroom_storage_cupboard,
+                "bathroom_storage_cupboard.jpg",
+                Product(
+                    name = "Bathroom Storage Cupboard",
+                    description = "Compact white cabinet for storing toiletries and towels.",
+                    price = "89.00",
+                    details = "Style: Minimal\nRoom: Bathroom\nMaterial: Plastic + Wood\nColor: White",
+                    onSale = false,
+                    category = "cupboard",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.wardrobe_4_door,
+                "wardrobe_4_door.jpg",
+                Product(
+                    name = "4-Door Wardrobe",
+                    description = "Spacious wardrobe with drawers and multiple compartments.",
+                    price = "799.99",
+                    details = "Style: Contemporary\nRoom: Master Bedroom\nColor: Espresso\nMaterial: Engineered Wood",
+                    onSale = true,
+                    category = "cupboard",
+                    discountPercentage = 30
+                )
+            ),
+            Triple(
+                R.drawable.shoe_storage_cupboard,
+                "shoe_storage_cupboard.jpg",
+                Product(
+                    name = "Shoe Storage Cupboard",
+                    description = "Space-saving cabinet to neatly organize up to 15 pairs.",
+                    price = "159.00",
+                    details = "Style: Modern Utility\nRoom: Entryway or Closet\nColor: Light Oak\nCapacity: 15 Pairs",
+                    onSale = false,
+                    category = "cupboard",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.mirrored_wardrobe_cupboard,
+                "mirrored_wardrobe_cupboard.jpg",
+                Product(
+                    name = "Mirrored Cupboard",
+                    description = "Full-length mirrored wardrobe with internal shelves and rod.",
+                    price = "449.99",
+                    details = "Style: Modern\nRoom: Bedroom or Dressing Room\nColor: Walnut\nShelves + Hanging Rod",
+                    onSale = true,
+                    category = "cupboard",
+                    discountPercentage = 20
+                )
+            ),
+            Triple(
+                R.drawable.wooden_storage_cabinet,
+                "wooden_storage_cabinet.jpg",
+                Product(
+                    name = "Wooden Storage Cabinet",
+                    description = "Classic Sheesham wood cabinet with rich natural grain.",
+                    price = "229.00",
+                    details = "Style: Traditional\nRoom: Living Room or Bedroom\nMaterial: Sheesham Wood\nColor: Natural",
+                    onSale = false,
+                    category = "cupboard",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.kids_closet_cupboard,
+                "kids_closet_cupboard.jpg",
+                Product(
+                    name = "Children's Closet",
+                    description = "Colorful and safe closet for kids' clothing and toys.",
+                    price = "179.00",
+                    details = "Style: Playful\nRoom: Kids Room\nColor: Pink/Blue\nMaterial: Plastic",
+                    onSale = true,
+                    category = "cupboard",
+                    discountPercentage = 10
+                )
+            ),
+            Triple(
+                R.drawable.glass_door_showcase,
+                "glass_door_showcase.jpg",
+                Product(
+                    name = "Glass Door Cupboard",
+                    description = "Showcase cupboard with black frame and glass doors.",
+                    price = "319.00",
+                    details = "Style: Display\nRoom: Living Room or Dining\nMaterial: MDF + Glass\nColor: Black",
+                    onSale = true,
+                    category = "cupboard",
+                    discountPercentage = 15
+                )
+            ),
+            Triple(
+                R.drawable.office_storage_cupboard,
+                "office_storage_cupboard.jpg",
+                Product(
+                    name = "Office Storage Cupboard",
+                    description = "Functional white cabinet for documents and supplies.",
+                    price = "199.00",
+                    details = "Style: Functional Office\nRoom: Study or Workspace\nMaterial: MDF\nShelves: 4\nColor: White",
+                    onSale = false,
+                    category = "cupboard",
+                    discountPercentage = 0
+                )
+            ),
+            Triple(
+                R.drawable.utility_room_cupboard,
+                "utility_room_cupboard.jpg",
+                Product(
+                    name = "Utility Cupboard",
+                    description = "Versatile cupboard that fits in kitchens, offices, or bedrooms.",
+                    price = "189.00",
+                    details = "Style: Multi-Purpose\nRoom: Any Room\nMaterial: Engineered Wood\nColor: Maple",
+                    onSale = true,
+                    category = "cupboard",
+                    discountPercentage = 15
+                )
+            ),
         )
+
 
         val db = FirebaseFirestore.getInstance()
 
@@ -98,7 +870,12 @@ class HomeActivity : ComponentActivity() {
                                 "description" to Product.description,
                                 "price" to Product.price,
                                 "imageUrl" to url,
-                                "details" to Product.details
+                                "details" to Product.details,
+                                "category" to Product.category,
+                                "onSale" to true, // <-- Add this
+                                "viewCount" to 0,  // Initialize view count
+                                "createdAt" to FieldValue.serverTimestamp(),  // Add timestamp
+                                "discountPercentage" to 0
                             )
 
                             db.collection("products")
@@ -118,12 +895,85 @@ class HomeActivity : ComponentActivity() {
                     Log.e("Cloudinary", "❌ Error checking ${Product.name}", it)
                 }
         }
-            setContent {
-                FurnitureApp()
+        setContent {
+            FurnitureApp()
+        }
+    }
+
+    @Composable
+    fun CategoryScreen(categoryName: String, navController: NavHostController) {
+        val firestore = FirebaseFirestore.getInstance()
+        val products = remember { mutableStateOf<List<Product>>(emptyList()) }
+        val isLoading = remember { mutableStateOf(true) }
+
+        LaunchedEffect(categoryName) {
+            try {
+                val query = if (categoryName == "All") {
+                    firestore.collection("products")
+                } else {
+                    firestore.collection("products")
+                        .whereEqualTo("category", categoryName.lowercase())
+                }
+
+                query.get().addOnSuccessListener { snapshot ->
+                    products.value = snapshot.documents.map { doc ->
+                        doc.toObject<Product>()!!.copy(id = doc.id)
+                    }
+                    isLoading.value = false
+                }
+            } catch (e: Exception) {
+                Log.e("CategoryScreen", "Error loading products", e)
+                isLoading.value = false
             }
         }
 
-
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("$categoryName Collection") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, "Back")
+                        }
+                    }
+                )
+            }
+        ) { padding ->
+            if (isLoading.value) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (products.value.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No products found in this category")
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(products.value) { product ->
+                        ProductCardCompact(product = product, navController = navController)
+                    }
+                }
+            }
+        }
+    }
     @Composable
     fun FurnitureApp() {
         val navController = rememberNavController()
@@ -139,9 +989,9 @@ class HomeActivity : ComponentActivity() {
                 modifier = Modifier.padding(padding)
             ) {
                 composable("home") { HomeScreen(navController) }
-                composable("detail/{productId}") { backStackEntry ->
-                    val productId = backStackEntry.arguments?.getString("productId") ?: ""
-                    ProductDetailScreen(productId = productId, navController = navController)
+                composable("category/{categoryName}") { backStackEntry ->
+                    val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
+                    CategoryScreen(categoryName = categoryName, navController = navController)
                 }
                 composable("search") { SearchScreen() }
                 composable("cart") { CartScreen() }
@@ -190,6 +1040,10 @@ class HomeActivity : ComponentActivity() {
         val price: String = "",
         val imageUrl: String = "",
         val category: String = "",
+        val onSale: Boolean = false,             // New
+        val discountPercentage: Int = 0,
+        val viewCount: Int = 0,  // For popularity tracking
+        val createdAt: Timestamp? = null,  // For "Newest" filter
         val details: String = ""
     )
     // for real timer
@@ -243,11 +1097,28 @@ class HomeActivity : ComponentActivity() {
         val isLoading = remember { mutableStateOf(true) }
         val error = remember { mutableStateOf<String?>(null) }
         var searchQuery by remember { mutableStateOf("") }
-        val filteredProducts = remember(products.value, searchQuery) {
-            if (searchQuery.isEmpty()) products.value
-            else products.value.filter {
-                it.name.contains(searchQuery, ignoreCase = true) ||
-                        it.description.contains(searchQuery, ignoreCase = true)
+        var selectedFilter by remember { mutableStateOf("All") }
+        val filteredProducts = remember(products.value, searchQuery, selectedFilter) {
+            val thirtyDaysAgo = Calendar.getInstance().apply {
+                add(Calendar.DAY_OF_YEAR, -30)
+            }.time
+
+            val baseList = if (searchQuery.isEmpty()) {
+                products.value
+            } else {
+                products.value.filter { product ->
+                    product.name.contains(searchQuery, ignoreCase = true) ||
+                            product.description.contains(searchQuery, ignoreCase = true)
+                }
+            }
+
+            when (selectedFilter) {
+                "Newest" -> baseList.filter { product ->
+                    product.createdAt?.toDate()?.after(thirtyDaysAgo) ?: false
+                }.sortedByDescending { it.createdAt?.toDate() }
+                "Popular" -> baseList.sortedByDescending { it.viewCount }
+                "Bedroom" -> baseList.filter { it.category.equals("bedroom", ignoreCase = true) }
+                else -> baseList // "All"
             }
         }
         // Check authentication
@@ -271,6 +1142,7 @@ class HomeActivity : ComponentActivity() {
         LaunchedEffect(Unit) {
             try {
                 firestore.collection("products")
+                    .orderBy("createdAt", Query.Direction.DESCENDING)
                     .get()
                     .addOnSuccessListener { snapshot ->
                         products.value = snapshot.documents.map { doc ->
@@ -329,30 +1201,30 @@ class HomeActivity : ComponentActivity() {
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.Gray
                 )
-
-                // Search Bar
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp),
-                    placeholder = { Text("Search Furniture") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint = Color.Gray
-                        )
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(20.dp),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.LightGray.copy(alpha = 0.2f),
-                        focusedContainerColor = Color.LightGray.copy(alpha = 0.3f)
-                    )
-                )
             }
+            // Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
+                placeholder = { Text("Search Furniture") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search",
+                        tint = Color.Gray
+                    )
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(20.dp),
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.LightGray.copy(alpha = 0.2f),
+                    focusedContainerColor = Color.LightGray.copy(alpha = 0.3f)
+                )
+            )
+
 
             // New Collection Banner
             Box(
@@ -403,32 +1275,29 @@ class HomeActivity : ComponentActivity() {
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
-                Text(
-                    text = "See All",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
+
             }
 
             // Category Items
             val categories = listOf(
-                Pair(Icons.Default.Weekend, "Sofa"),  // Using Weekend icon for Sofa
-                Pair(Icons.Default.Chair, "Chair"),
-                Pair(Icons.Default.Lightbulb, "Lamp"),
-                Pair(Icons.Default.Kitchen, "Cupboard")  // Using Kitchen icon for Cupboard
+                "Sofa" to Icons.Default.Weekend,
+                "Chair" to Icons.Default.Chair,
+                "Lamp" to Icons.Default.Lightbulb,
+                "Cupboard" to Icons.Default.Kitchen
             )
 
-// Category Row
             LazyRow(
                 modifier = Modifier.padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(categories) { (icon, name) ->
+                items(categories) { (name, icon) ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .width(80.dp)
-                            .clickable { /* Handle category click */ }
+                            .clickable {
+                                navController.navigate("category/$name")
+                            }
                     ) {
                         Icon(
                             imageVector = icon,
@@ -467,10 +1336,22 @@ class HomeActivity : ComponentActivity() {
             ) {
                 listOf("All", "Newest", "Popular", "Bedroom").forEach { filter ->
                     FilterChip(
-                        selected = filter == "All",
-                        onClick = { /* Handle filter change */ },
-                        label = { Text(filter) }
+                        selected = filter == selectedFilter,
+                        onClick = { selectedFilter = filter },
+                        label = { Text(filter) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = Color.White
+                        ),
+                        border = when (filter) {
+                            selectedFilter -> BorderStroke(
+                                width = 2.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            else -> null
+                        }
                     )
+
                 }
             }
 
@@ -496,34 +1377,34 @@ class HomeActivity : ComponentActivity() {
             enter = fadeIn(),
             exit = fadeOut()
         ){
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { navController.navigate("detail/${product.id}") },
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(4.dp)
-        ) {
-            Column {
-                // Product image
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (product.imageUrl.isNotEmpty()) {
-                        AsyncImage(
-                            model = product.imageUrl,
-                            contentDescription = product.name,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Text("Image not available")
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { navController.navigate("detail/${product.id}") },
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(4.dp)
+            ) {
+                Column {
+                    // Product image
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (product.imageUrl.isNotEmpty()) {
+                            AsyncImage(
+                                model = product.imageUrl,
+                                contentDescription = product.name,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Text("Image not available")
+                        }
                     }
                 }
-            }
                 // Product details
                 Column(
                     modifier = Modifier.padding(8.dp)
@@ -564,6 +1445,12 @@ class HomeActivity : ComponentActivity() {
 
         LaunchedEffect(productId) {
             try {
+                // Increment view count when product is viewed
+                FirebaseFirestore.getInstance()
+                    .collection("products")
+                    .document(productId)
+                    .update("viewCount", FieldValue.increment(1))
+
                 val doc = FirebaseFirestore.getInstance()
                     .collection("products")
                     .document(productId)

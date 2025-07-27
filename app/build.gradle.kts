@@ -69,6 +69,7 @@ dependencies {
         implementation ("androidx.compose.material3:material3:1.1.2")
         implementation ("androidx.compose.material:material:1.5.4")
 
+    implementation ("com.google.android.gms:play-services-auth:21.0.0")
 
 
 
